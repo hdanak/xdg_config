@@ -1,0 +1,4 @@
+export PATH="/home/hdanak/local/bin:$PATH"
+export PAGER="vimpager"
+export EDITOR="vim"
+export TRASH_DIR=~/".trash"

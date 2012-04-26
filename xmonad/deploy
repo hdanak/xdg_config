@@ -1,0 +1,7 @@
+
+
+# xmonad
+deploy_dotdir xmonad
+
+# xmobar
+deploy_dotfile xmonad xmobarrc

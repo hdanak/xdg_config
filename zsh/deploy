@@ -1,0 +1,7 @@
+
+# zsh
+ln -si {$CWD/zsh/,~/.}zshrc
+ln -si {$CWD/zsh/,~/.}zshenv
+mkdir -p ~/.cache/zsh
+touch ~/.cache/zsh/histfile
+ln -si ~/.cache/zsh/histfile ~/.histfile

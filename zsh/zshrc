@@ -1,0 +1,68 @@
+# Lines configured by zsh-newuser-install
+HISTFILE=~/.histfile
+HISTSIZE=2000
+SAVEHIST=1000
+setopt notify
+bindkey -e
+# End of lines configured by zsh-newuser-install
+# The following lines were added by compinstall
+zstyle :compinstall filename '/home/hdanak/.zshrc'
+
+autoload -Uz compinit
+compinit
+# End of lines added by compinstall
+
+PROMPT="%n@%m:%2c%# "
+
+MAKEFLAGS="-j8"
+CFLAGS="-march=native -O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+
+function man ()
+{
+  vim -R -c 'runtime ftplugin/man.vim' \
+	 -c 'map q :q<CR>' -c 'map <SPACE> <C-D>' \
+	 -c "Man ${*-man}" +"wincmd o"
+}
+#alias man=vman
+function info ()
+{
+  vim -c "Info $1" -c "bdelete 1"
+}
+#alias info=vinfo
+alias ls="ls --color=auto"
+
+function copilot ()
+{
+	
+	cd ~/develop/copilot
+	tmux -L "copilot" attach || tmux -L "copilot"
+	cd -
+}
+
+function projects ()
+{
+	cd ~/develop
+	tmux -L "projects" attach || tmux -L "projects"
+	cd -
+}
+
+eval `keychain --eval --agents ssh id_rsa`
+
+unsetopt MULTIBYTE
+
+autoload zkbd
+[[ ! -f ${ZDOTDIR:-$HOME}/.zkbd/$TERM-$VENDOR-$OSTYPE ]] && zkbd
+source ${ZDOTDIR:-$HOME}/.zkbd/$TERM-$VENDOR-$OSTYPE
+
+[[ -n ${key[Backspace]} ]] && bindkey "${key[Backspace]}" backward-delete-char
+[[ -n ${key[Insert]} ]] && bindkey "${key[Insert]}" overwrite-mode
+[[ -n ${key[Home]} ]] && bindkey "${key[Home]}" beginning-of-line
+[[ -n ${key[PageUp]} ]] && bindkey "${key[PageUp]}" up-line-or-history
+[[ -n ${key[Delete]} ]] && bindkey "${key[Delete]}" delete-char
+[[ -n ${key[End]} ]] && bindkey "${key[End]}" end-of-line
+[[ -n ${key[PageDown]} ]] && bindkey "${key[PageDown]}" down-line-or-history
+[[ -n ${key[Up]} ]] && bindkey "${key[Up]}" up-line-or-search
+[[ -n ${key[Left]} ]] && bindkey "${key[Left]}" backward-char
+[[ -n ${key[Down]} ]] && bindkey "${key[Down]}" down-line-or-search
+[[ -n ${key[Right]} ]] && bindkey "${key[Right]}" forward-char
