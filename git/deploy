@@ -1,0 +1,3 @@
+
+# git
+ln -si $CWD/git/config ~/.gitconfig

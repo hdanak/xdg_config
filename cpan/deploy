@@ -1,0 +1,7 @@
+
+# cpan
+if [ -e ~/.cpan ]
+then
+    rm ~/.cpan
+fi
+ln -si $CWD/cpan ~/.cpan

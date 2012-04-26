@@ -1,0 +1,26 @@
+[core]
+    editor = vim
+[user]
+    name = Hike Danakian
+    email = hike@hdanak.com
+[diff]
+    tool = vimdiff
+    guitool = meld
+[color]
+    ui = auto
+[grep]
+    lineNumber = true
+[merge]
+    tool = meld
+[log]
+    decorate = true
+[alias]
+    stat = status
+    graph = log --graph
+    partial = add -p
+    info = branch -v
+    vimdiff = difftool --tool=vimdiff
+    permission-reset = "!git diff -p | grep -E '^(diff|old mode|new mode)' \
+		     | sed -e 's/^old/NEW/;s/^new/old/;s/^NEW/new/' | git apply"
+    changed = diff --name-only
+    cached = diff --cached

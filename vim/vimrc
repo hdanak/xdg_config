@@ -1,0 +1,60 @@
+
+nmap OA 
+nmap OB 
+nmap OC gt 
+nmap OD gT
+
+nmap j gj
+nmap k gk
+
+imap <S-tab> <<
+
+let $PAGER=''
+
+runtime ftplugin/man.vim
+nmap K :Man <cword><CR>
+
+set foldmethod=indent
+set foldminlines=3
+
+function! FoldText()
+  let foldline = matchstr(getline(v:foldstart), '^\s*\zs.*\ze$') . ' '
+  let nextline = getline(nextnonblank(v:foldstart + 1))
+  if foldline =~ '^\s*"""'
+    let foldline = foldline . matchstr(nextline, '^\s*\zs.*\ze$')
+  elseif foldline =~ '^\s\+"[^"]\+"$'
+    let foldline = foldline . matchstr(nextline, '"\zs.*\ze"')
+  endif
+  let size = 1 + v:foldend - v:foldstart
+  return "+ " . size . " lines:  " . foldline
+endfunction
+set foldtext=FoldText()
+
+set foldlevelstart=1
+
+set formatoptions=croqln1 "a -- makes it reflow comments
+let &showbreak=repeat(' ', winwidth(0)/3) . ' ..'
+set linebreak
+
+nmap Q gq}<C-o>
+
+nmap S :w<CR>
+
+set spell
+set hlsearch
+nnoremap <silent> <ESC> :nohl<CR>
+
+hi SpellBad cterm=underline ctermfg=red ctermbg=black
+hi SpellCap cterm=underline ctermfg=cyan ctermbg=black
+hi Search cterm=bold ctermfg=darkblue ctermbg=grey
+hi Folded	ctermfg=darkgrey ctermbg=NONE
+hi FoldColumn	ctermfg=darkgrey ctermbg=NONE
+hi VertSplit cterm=reverse ctermfg=black ctermbg=grey
+hi StatusLine cterm=bold ctermbg=darkgrey ctermfg=white
+hi StatusLineNC cterm=NONE ctermbg=darkgrey ctermfg=grey
+
+set background=dark
+set ts=4 sts=4 sw=4 et
+filetype plugin indent on
+syntax on
+set nomodeline

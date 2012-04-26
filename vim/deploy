@@ -1,0 +1,6 @@
+
+# vim
+ln -si $CWD/vim/vimrc ~/.vimrc
+mkdir -p ~/.cache/vim
+touch ~/.cache/vim/viminfo
+ln -si ~/.cache/vim/viminfo ~/.viminfo

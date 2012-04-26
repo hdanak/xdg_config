@@ -1,0 +1,7 @@
+
+# bash
+ln -si {$CWD/bash/,~/.}bashrc
+ln -si {$CWD/bash/,~/.}bash_profile
+mkdir -p ~/.cache/bash
+touch ~/.cache/bash/bash_history
+ln -si ~/.cache/bash/bash_history ~/.bash_history
