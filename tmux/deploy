@@ -1,0 +1,3 @@
+
+# tmux
+deploy_dotfile tmux tmux.conf
