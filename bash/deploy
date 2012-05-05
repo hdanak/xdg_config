@@ -2,6 +2,4 @@
 # bash
 deploy_dotfile bash bashrc
 deploy_dotfile bash bash_profile
-mkdir -p ~/.cache/bash
-touch ~/.cache/bash/bash_history
-ln -si ~/.cache/bash/bash_history ~/.bash_history
+deploy_cache bash bash_history

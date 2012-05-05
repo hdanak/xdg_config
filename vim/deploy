@@ -1,6 +1,3 @@
 
 # vim
 deploy_dotfile vim vimrc
-mkdir -p ~/.cache/vim
-touch ~/.cache/vim/viminfo
-ln -si ~/.cache/vim/viminfo ~/.viminfo
