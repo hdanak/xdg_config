@@ -62,4 +62,8 @@ export PERL_MB_OPT="--install_base /home/hdanak/.local";
 export PERL_MM_OPT="INSTALL_BASE=/home/hdanak/.local";
 export PERL5LIB="/home/hdanak/.local/lib/perl5/x86_64-linux:/home/hdanak/.local/lib/perl5";
 
-eval `keychain --eval --agents ssh id_rsa`
+which keychain &>/dev/null
+if [ $? == 0 ]
+then
+    eval `keychain --eval --agents ssh id_rsa`
+fi
