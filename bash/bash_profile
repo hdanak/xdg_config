@@ -4,4 +4,4 @@
 [[ -f ~/.local/etc/bash_profile ]] && source ~/.local/etc/bash_profile
 
 # Add the following to ~/.local/etc/bash_profile
-#   tmux attach 2>/dev/null
+#   tmux attach
