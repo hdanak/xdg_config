@@ -4,6 +4,14 @@ nmap OB 
 nmap OC gt 
 nmap OD gT
 
+nmap <C-j> 
+nmap <C-k>  
+
+nmap j 
+nmap k 
+nmap l gt
+nmap h gT
+
 nmap j gj
 nmap k gk
 
@@ -47,11 +55,15 @@ nnoremap <silent> <ESC> :nohl<CR>
 hi SpellBad cterm=underline ctermfg=red ctermbg=black
 hi SpellCap cterm=underline ctermfg=cyan ctermbg=black
 hi Search cterm=bold ctermfg=darkblue ctermbg=grey
-hi Folded	ctermfg=darkgrey ctermbg=NONE
-hi FoldColumn	ctermfg=darkgrey ctermbg=NONE
-hi VertSplit cterm=reverse ctermfg=black ctermbg=grey
-hi StatusLine cterm=bold ctermbg=darkgrey ctermfg=white
-hi StatusLineNC cterm=NONE ctermbg=darkgrey ctermfg=grey
+hi Folded	ctermfg=grey ctermbg=NONE
+hi FoldColumn	ctermfg=grey ctermbg=NONE
+hi VertSplit ctermbg=grey ctermfg=black
+hi StatusLine cterm=bold ctermbg=grey ctermfg=darkgrey
+hi StatusLineNC cterm=NONE ctermbg=grey ctermfg=grey
+hi ExtraWhitespace ctermbg=red
+"hi ExtraWhitespace ctermbg=darkgreen
+match ExtraWhitespace /\s\+$\| \+\ze\t/
+
 
 set background=dark
 set ts=4 sts=4 sw=4 et

@@ -10,6 +10,7 @@ export PAGER="less"
 export EDITOR="vim"
 export TRASH_DIR=~/".trash"
 export LESS="-RSM~gIsw"
+[ "$TERM" != "dumb" ] && eval "`dircolors -b`" && alias ls='ls --color=auto'
 
 # Set prompt PS1
 export PS1=`perl -w <<'EOF'
