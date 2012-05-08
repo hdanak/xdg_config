@@ -3,6 +3,8 @@ if [[ $- != *i* ]] ; then
     return
 fi
 
+[[ -f /etc/bashrc ]] && source /etc/bashrc
+
 set -o vi
 
 export PATH=$HOME/.local/bin:$PATH
