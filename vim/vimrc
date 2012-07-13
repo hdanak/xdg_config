@@ -4,18 +4,18 @@ nmap k gk
 
 nmap <C-h> gT
 nmap <C-l> gt
-nmap <C-j> 
-nmap <C-k> 
+nmap <C-j> <C-d>
+nmap <C-k> <C-u>
 
-nmap j 
-nmap k 
+nmap <Esc>j <C-e>
+nmap <Esc>k <C-y>
 
-nmap OD gT
-nmap OC gt
-nmap OB 
-nmap OA 
+nmap <Esc>OD gT
+nmap <Esc>OC gt
+nmap <Esc>OB <C-e>
+nmap <Esc>OA <C-y>
 
-imap <S-tab> <<
+imap <S-tab> <C-o><<
 
 " Perl utility functions
 perl << EOF
