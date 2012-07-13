@@ -13,6 +13,7 @@ export EDITOR="vim"
 export TRASH_DIR=~/".trash"
 export LESS="-RSM~gIsw"
 [ "$TERM" != "dumb" ] && eval "`dircolors -b`" && alias ls='ls --color=auto'
+alias redshift='redshift -l 37.788081:-122.277832'
 
 # Set prompt PS1
 export PS1=`perl -w <<'EOF'
@@ -37,29 +38,30 @@ export MAKEFLAGS="-j"
 export CFLAGS="-march=native -O2 -pipe"
 export CXXFLAGS="${CFLAGS}"
 
-function man ()
+function man
 {
   vim -R -c 'runtime ftplugin/man.vim' \
 	     -c 'map q :q<CR>' \
          -c "Man ${*-man}" +"wincmd o"
 }
-function info ()
+function info
 {
   vim -c "Info $1" -c "bdelete 1"
 }
 
-function copilot ()
+function copilot
 {
-	
+
 	cd ~/develop/copilot
     source copilot_env
 }
-function prism ()
+function prism
 {
     cd ~/develop/copilot/hq/trunk/prism
 }
 
-genpasswd() {
+function genpasswd
+{
     local l=$1
     [ "$l" == "" ] && l=16
     tr -dc A-Za-z0-9_ < /dev/urandom | head -c ${l} | xargs
