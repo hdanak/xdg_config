@@ -1,21 +1,51 @@
 
-nmap OA 
-nmap OB 
-nmap OC gt 
-nmap OD gT
-
-nmap <C-j> 
-nmap <C-k>  
-
-nmap j 
-nmap k 
-nmap l gt
-nmap h gT
-
 nmap j gj
 nmap k gk
 
+nmap <C-h> gT
+nmap <C-l> gt
+nmap <C-j> 
+nmap <C-k> 
+
+nmap j 
+nmap k 
+
+nmap OD gT
+nmap OC gt
+nmap OB 
+nmap OA 
+
 imap <S-tab> <<
+
+" Perl utility functions
+perl << EOF
+## Misc Util Functions
+    sub say {
+        VIM::Msg(join '', @_)
+    }
+## Variable Access
+    sub VIM_variable {
+        while ( ($type, $prefix) = each %_ ) {
+            *{$type} = sub { map { VIM::Eval( $prefix . $_ ) } @_ }
+        }
+    }
+    VIM_variable var => 'l:', opt => '&', reg => '@', env => '$';
+
+## Vim Command Translations
+    sub VIM_translate {
+        map {
+            if ('ARRAY' eq ref) {
+                '[' . join(',', VIM_translate(@$_)) . ']'
+            } else { "$_" }
+        } @_
+    }
+    sub VIM_native {
+        for my $cmd (@_) {
+            *{$cmd} = sub { VIM::Eval( "$cmd(" . VIM_translate(@_) . ')' ) }
+        }
+    }
+    VIM_native 'col', 'line', 'virtcol', 'echo';
+EOF
 
 let $PAGER=''
 
@@ -45,7 +75,6 @@ let &showbreak=repeat(' ', winwidth(0)/3) . ' ..'
 set linebreak
 
 nmap Q gq}<C-o>
-
 nmap S :w<CR>
 
 set spell
@@ -70,3 +99,5 @@ set ts=4 sts=4 sw=4 et
 filetype plugin indent on
 syntax on
 set nomodeline
+
+noremap <silent> <Leader>vs :<C-u>let @z=&so<CR>:set so=0 noscb<CR>:bo vs<CR>Ljzt:setl scb<CR><C-w>p:setl scb<CR>:let &so=@z<CR>
