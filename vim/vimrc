@@ -1,4 +1,147 @@
 
+" Perl utility functions
+perl << EOF
+
+sub say { VIM::Msg(join '', @_) }
+sub vi { (VIM::Eval(shift))[1] }
+sub ex { (VIM::DoCommand(shift))[1] }
+
+sub vi_opt {
+    vi('&'.shift)
+}
+
+use Scalar::Util qw(looks_like_number);
+
+sub vi_from_pl {
+    my ($data) = @_;
+    if (@_ > 1) {
+        return '[ ' . join(', ', map {vi_from_pl($_)} @_) . ' ]'
+    } elsif ('ARRAY' eq ref $data) {
+        return vi_from_pl(@$data)
+    } elsif ('HASH' eq ref $data) {
+        return '{ ' . join(', ', map {
+            vi_from_pl($_) . ": " . vi_from_pl($data->{$_})
+        } keys %$data) . ' }'
+    } elsif (looks_like_number($data)) {
+        return $data
+    } else {
+        $data =~ s/'/\\'/g;
+        return "'" . $data . "'"
+    }
+}
+
+sub vi_to_pl {
+    map {
+        my @parts = split "\n";
+        @parts > 1
+        ?   map { vi_to_pl($_) } @parts
+        :   $_ eq '' ? () : $_
+    } @_
+}
+
+sub vi_raw_call {
+    my @retval = *{shift()}->(vi_to_pl(vi("a:000")));
+    ex("return ". vi_from_pl(@retval)) if @retval;
+}
+
+sub vi_func (*&) {
+    my ($fname, $fsub) = @_;
+    *{$fname} = $fsub;
+    ex qq{
+:       function! $fname(...)
+:           perl vi_raw_call('$fname')
+:       endfunction
+    }
+}
+
+## Utility functions defined in both VIM and Perl
+
+vi_func CharAt, sub {
+    my ($line, $column, $char) = @_;
+    my $text = TextAtLine($line);
+    if (defined $char) {
+        substr $text, $column, 1, $char;
+        TextAtLine($line, $text);
+        return $char
+    } else {
+        return substr($text, $column, 1)
+    }
+};
+vi_func DeleteCharAt, sub {
+    CharAt($_[0], $_[1], '')
+};
+vi_func TextAtLine, sub {
+    my ($line, $text) = @_;
+    if (defined $text) {
+        $curbuf->Set($line, $text);
+    }
+    return $curbuf->Get($line);
+};
+vi_func DeleteTextAtLine, sub {
+    TextAtLine($_[0], '')
+};
+vi_func Cursor, sub {
+    $curwin->Cursor(@_) if @_;
+    return $curwin->Cursor()
+};
+vi_func CursorLine, sub {
+    my ($new_line) = @_;
+    my ($line, $column) = Cursor();
+    Cursor($line=$new_line, $column) if @_;
+    return $line
+};
+vi_func CursorColumn, sub {
+    my ($new_column) = @_;
+    my ($line, $column) = Cursor();
+    Cursor($line, $column=$new_column) if @_;
+    return $column
+};
+EOF
+
+perl << EOF
+vi_func NextTabstop, sub {
+    my $colnum = CursorColumn();
+    my $ts = vi_opt 'tabstop';
+    ( CharAt(Cursor()) eq "\t"
+    ? $colnum + 1
+    : $colnum + $ts - $colnum % $ts )
+};
+vi_func PrevTabstop, sub {
+    my $colnum = CursorColumn();
+    my $ts = vi_opt 'tabstop';
+    ( CharAt(Cursor()) eq "\t"
+    ? $colnum - 1
+    : $colnum - 1 - ($colnum - 1) % $ts )
+}
+EOF
+
+map <silent> <tab> :call CursorColumn(NextTabstop())<CR>
+map <silent> <S-tab> :call CursorColumn(PrevTabstop())<CR>
+map <silent> <Esc>l :call CursorColumn(NextTabstop())<CR>
+map <silent> <Esc>h :call CursorColumn(PrevTabstop())<CR>
+
+perl << EOF
+vi_func RemoveLastTab, sub {
+    my ($line, $column) = Cursor();
+    if (CharAt($line, $column) eq "\t") {
+        DeleteCharAt($line, $column);
+        CursorColumn($column - 1);
+    } else {
+        my $ts = vi_opt 'tabstop';
+        $column = PrevTabstop();
+        my $text = TextAtLine($line);
+        my $snip = substr $text, $column, $ts;
+        $snip =~ s/\s+$//;
+        substr $text, $column, $ts, $snip;
+        TextAtLine($line, $text);
+        CursorColumn($column + length($snip));
+    }
+}
+EOF
+
+imap <S-tab> <C-o>:call RemoveLastTab()<CR>
+
+
 nmap j gj
 nmap k gk
 
@@ -7,67 +150,33 @@ nmap <C-l> gt
 nmap <C-j> <C-d>
 nmap <C-k> <C-u>
 
-nmap <Esc>j <C-e>
-nmap <Esc>k <C-y>
-
 nmap <Esc>OD gT
 nmap <Esc>OC gt
 nmap <Esc>OB <C-e>
 nmap <Esc>OA <C-y>
 
-imap <S-tab> <C-o><<
-
-" Perl utility functions
-perl << EOF
-## Misc Util Functions
-    sub say {
-        VIM::Msg(join '', @_)
-    }
-## Variable Access
-    sub VIM_variable {
-        while ( ($type, $prefix) = each %_ ) {
-            *{$type} = sub { map { VIM::Eval( $prefix . $_ ) } @_ }
-        }
-    }
-    VIM_variable var => 'l:', opt => '&', reg => '@', env => '$';
-
-## Vim Command Translations
-    sub VIM_translate {
-        map {
-            if ('ARRAY' eq ref) {
-                '[' . join(',', VIM_translate(@$_)) . ']'
-            } else { "$_" }
-        } @_
-    }
-    sub VIM_native {
-        for my $cmd (@_) {
-            *{$cmd} = sub { VIM::Eval( "$cmd(" . VIM_translate(@_) . ')' ) }
-        }
-    }
-    VIM_native 'col', 'line', 'virtcol', 'echo';
-EOF
+nmap <Esc>j <C-e>j
+nmap <Esc>k <C-y>k
 
 let $PAGER=''
-
 runtime ftplugin/man.vim
 nmap K :Man <cword><CR>
 
+function! FoldText()
+    let foldline = matchstr(getline(v:foldstart), '^\s*\zs.*\ze$') . ' '
+    let nextline = getline(nextnonblank(v:foldstart + 1))
+    if foldline =~ '^\s*"""'
+        let foldline = foldline . matchstr(nextline, '^\s*\zs.*\ze$')
+    elseif foldline =~ '^\s\+"[^"]\+"$'
+        let foldline = foldline . matchstr(nextline, '"\zs.*\ze"')
+    endif
+    let size = 1 + v:foldend - v:foldstart
+    return "+ " . size . " lines:  " . foldline
+endfunction
+
 set foldmethod=indent
 set foldminlines=3
-
-function! FoldText()
-  let foldline = matchstr(getline(v:foldstart), '^\s*\zs.*\ze$') . ' '
-  let nextline = getline(nextnonblank(v:foldstart + 1))
-  if foldline =~ '^\s*"""'
-    let foldline = foldline . matchstr(nextline, '^\s*\zs.*\ze$')
-  elseif foldline =~ '^\s\+"[^"]\+"$'
-    let foldline = foldline . matchstr(nextline, '"\zs.*\ze"')
-  endif
-  let size = 1 + v:foldend - v:foldstart
-  return "+ " . size . " lines:  " . foldline
-endfunction
 set foldtext=FoldText()
-
 set foldlevelstart=1
 
 set formatoptions=croqln1 "a -- makes it reflow comments
@@ -79,23 +188,29 @@ nmap S :w<CR>
 
 set spell
 set hlsearch
-nnoremap <silent> <ESC> :nohl<CR>
+nnoremap <silent> <Leader><Leader> :nohlsearch<CR>
 
-hi SpellBad cterm=underline ctermfg=red ctermbg=black
-hi SpellCap cterm=underline ctermfg=cyan ctermbg=black
-hi Search cterm=bold ctermfg=darkblue ctermbg=grey
-hi Folded	ctermfg=grey ctermbg=NONE
-hi FoldColumn	ctermfg=grey ctermbg=NONE
-hi VertSplit ctermbg=grey ctermfg=black
-hi StatusLine cterm=bold ctermbg=grey ctermfg=darkgrey
-hi StatusLineNC cterm=NONE ctermbg=grey ctermfg=grey
-hi ExtraWhitespace ctermbg=red
-"hi ExtraWhitespace ctermbg=darkgreen
+hi SpellBad         cterm=underline ctermfg=red         ctermbg=black
+hi SpellCap         cterm=underline ctermfg=cyan        ctermbg=black
+hi Search           cterm=bold      ctermfg=darkblue    ctermbg=grey
+hi Folded                           ctermfg=grey        ctermbg=NONE
+hi FoldColumn                       ctermfg=grey        ctermbg=NONE
+hi VertSplit                        ctermfg=black       ctermbg=grey
+hi StatusLine       cterm=bold      ctermfg=darkgrey    ctermbg=grey
+hi StatusLineNC     cterm=NONE      ctermfg=grey        ctermbg=grey
+hi ColorColumn      cterm=underline ctermfg=darkgrey    ctermbg=black
+hi LineNr           cterm=NONE      ctermfg=brown       ctermbg=black
+hi ExtraWhitespace                                      ctermbg=red
+
 match ExtraWhitespace /\s\+$\| \+\ze\t/
 
+set number
+
+set textwidth=78
+set colorcolumn=+2
 
 set background=dark
-set ts=4 sts=4 sw=4 et
+set tabstop=4 sts=4 sw=4 et
 filetype plugin indent on
 syntax on
 set nomodeline
