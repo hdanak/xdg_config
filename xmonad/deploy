@@ -1,7 +1,7 @@
 
 
 # xmonad
-deploy_dotdir xmonad
+deploy . .xmonad
 
 # xmobar
-deploy_dotfile xmonad xmobarrc
+deploy xmobarrc .xmobarrc

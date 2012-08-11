@@ -1,25 +1,23 @@
 #!/bin/bash
 
-function source_deploy
+function deploy_single
+{
+    if [ -h ~/$2 ]
+    then
+        rm ~/$2
+    fi
+    ln -si $CWD/$1 ~/$2
+}
+
+function deploy_dir
 {
     if [ -e $1/deploy ]
     then
-        . $1/deploy
+        cd $1
+	CWD=`pwd`
+        . deploy
+        CWD=`cd -`
     fi
-}
-
-function deploy_dotfile
-{
-    ln -si {$CWD/$1/,~/.}$2
-}
-
-function deploy_dotdir
-{
-    if [ -h ~/.$1 ]
-    then
-        rm ~/.$1
-    fi
-    ln -si {$CWD/,~/.}$1
 }
 
 function deploy_cache
@@ -51,11 +49,11 @@ CWD=`pwd`
 
 if [ $# -eq 1 ]
 then
-    source_deploy $1
+    deploy_dir $1
     exit
 fi
 
-for dir in `ls -d */`
+for d in `ls -d */`
 do
-    source_deploy $dir
+    deploy_dir $d
 done

@@ -1,5 +1,5 @@
 
 # bash
-deploy_dotfile bash bashrc
-deploy_dotfile bash bash_profile
+deploy_single bashrc .bashrc
+deploy_single bash_profile .bash_profile
 deploy_cache bash bash_history

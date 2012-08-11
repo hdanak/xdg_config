@@ -1,3 +1,3 @@
 
 # cpan
-deploy_dotdir cpan
+deploy_single . .cpan

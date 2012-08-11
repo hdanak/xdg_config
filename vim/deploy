@@ -1,3 +1,4 @@
 
 # vim
-deploy_dotfile vim vimrc
+deploy_single vimrc .vimrc
+deploy_single vimdir .vim
