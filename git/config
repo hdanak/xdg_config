@@ -15,12 +15,14 @@
 [log]
     decorate = true
 [alias]
-    stat = status
+    stat = status -b --untracked-files=no
     graph = log --graph
     partial = add -p
+    forget = reset
     info = branch -v
     vimdiff = difftool --tool=vimdiff
     permission-reset = "!git diff -p | grep -E '^(diff|old mode|new mode)' \
 		     | sed -e 's/^old/NEW/;s/^new/old/;s/^NEW/new/' | git apply"
     changed = diff --name-only
     cached = diff --cached
+    update = add -u
