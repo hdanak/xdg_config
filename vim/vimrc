@@ -114,7 +114,6 @@ vi_func PrevTabstop, sub {
     : $colnum - 1 - ($colnum - 1) % $ts )
 }
 EOF
-
 map <silent> <tab> :call CursorColumn(NextTabstop())<CR>
 map <silent> <S-tab> :call CursorColumn(PrevTabstop())<CR>
 map <silent> <Esc>l :call CursorColumn(NextTabstop())<CR>
@@ -138,8 +137,14 @@ vi_func RemoveLastTab, sub {
     }
 }
 EOF
-
 imap <S-tab> <C-o>:call RemoveLastTab()<CR>
+
+function! BART(station)
+    let bart_url = 'http://www.hdanak.com/bart.pl?' . '\&station=' . a:station
+    return system('curl ' . bart_url . ' 2>/dev/null')
+endfunction
+map <silent> <Esc>b :echo BART('embr')<CR>
+
 
 nmap j gj
 nmap k gk
