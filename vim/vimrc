@@ -204,6 +204,7 @@ hi ExtraWhitespace                                      ctermbg=red
 match ExtraWhitespace /\s\+$\| \+\ze\t/
 
 set number
+nmap <silent> <F3> :exec &number ? "set relativenumber" : "set number"<CR>
 
 set textwidth=78
 set colorcolumn=+2
