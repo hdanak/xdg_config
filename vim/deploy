@@ -1,4 +1,4 @@
 
 # vim
 deploy_single vimrc .vimrc
-deploy_single vimdir .vim
+deploy_single vim .vim
