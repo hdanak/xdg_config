@@ -143,7 +143,7 @@ function! BART(station)
     let bart_url = 'http://www.hdanak.com/bart.pl?' . '\&station=' . a:station
     return system('curl ' . bart_url . ' 2>/dev/null')
 endfunction
-map <silent> <Esc>b :echo BART('embr')<CR>
+map <silent> <Leader>b :echo BART('embr')<CR>
 
 
 nmap j gj
