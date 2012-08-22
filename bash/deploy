@@ -2,4 +2,4 @@
 # bash
 deploy_single bashrc .bashrc
 deploy_single bash_profile .bash_profile
-deploy_cache bash bash_history
+#deploy_cache bash bash_history

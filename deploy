@@ -47,13 +47,15 @@ function error
 
 CWD=`pwd`
 
-if [ $# -eq 1 ]
+if [ $# -ge 1 ]
 then
-    deploy_dir $1
-    exit
+    for d in $*
+    do
+        deploy_dir $d
+    done
+else
+    for d in `ls -d */`
+    do
+        deploy_dir $d
+    done
 fi
-
-for d in `ls -d */`
-do
-    deploy_dir $d
-done
