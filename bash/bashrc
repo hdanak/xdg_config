@@ -5,7 +5,9 @@ fi
 
 [[ -f /etc/bashrc ]] && source /etc/bashrc
 
-set -o vi
+#set -o vi
+
+export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 
 export PATH=$HOME/.local/bin:$PATH
 export PAGER="less"
@@ -14,6 +16,9 @@ export TRASH_DIR=~/".trash"
 export LESS="-RSM~gIsw"
 [ "$TERM" != "dumb" ] && eval "`dircolors -b`" && alias ls='ls --color=auto'
 alias redshift='redshift -l 37.788081:-122.277832'
+
+# prevent Java grey screen
+export _JAVA_AWT_WM_NONREPARENTING=1
 
 # Set prompt PS1
 export PS1=`perl -w <<'EOF'
@@ -44,37 +49,61 @@ function man
 	     -c 'map q :q<CR>' \
          -c "Man ${*-man}" +"wincmd o"
 }
-function info
+#function info
+#{
+#  vim -c "Info $1" -c "bdelete 1"
+#}
+
+function develop
 {
-  vim -c "Info $1" -c "bdelete 1"
+
+	cd ~/develop
 }
 
-function copilot
+function perldev
 {
-
-	cd ~/develop/copilot
-    source copilot_env
-}
-function prism
-{
-    cd ~/develop/copilot/hq/trunk/prism
+    source ~/perl5/perlbrew/etc/bashrc
 }
 
 function genpasswd
 {
     local l=$1
     [ "$l" == "" ] && l=16
-    tr -dc A-Za-z0-9_ < /dev/urandom | head -c ${l} | xargs
+    tr -dc 'A-Za-z0-9_!@#$%()=+?.>,<~' < /dev/urandom | head -c ${l} | xargs
 }
 
+function winch
+{
+    kill -28 $$
+}
 
-export PERL_LOCAL_LIB_ROOT="/home/hdanak/.local";
-export PERL_MB_OPT="--install_base /home/hdanak/.local";
-export PERL_MM_OPT="INSTALL_BASE=/home/hdanak/.local";
-export PERL5LIB="/home/hdanak/.local/lib/perl5/x86_64-linux:/home/hdanak/.local/lib/perl5";
+function exit_after
+{
+    $* && exit
+}
+
+function mkcd
+{
+    mkdir -p $1 && cd $1
+}
+
+function dus
+{
+    du -hs $* | sort -h
+}
+
+perldev
 
 which keychain &>/dev/null
-if [ $? == 0 ]
-then
+if [ $? == 0 ]; then
     eval `keychain --eval --agents ssh id_rsa`
+#else
+#    which gnome-keyring-daemon &>/dev/null
+#    if [ $? == 0 ]; then eval `gnome-keyring-daemon -s`; fi
 fi
+
+if [ $TERM != 'screen' ]; then
+    tmux new-session -t 0 \; new-window
+fi
+
+winch

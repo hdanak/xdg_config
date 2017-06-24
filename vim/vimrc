@@ -1,3 +1,21 @@
+filetype off
+
+" Vundle Config
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+Bundle 'gmarik/vundle'
+
+Bundle 'Lokaltog/powerline'
+Bundle 'Lokaltog/vim-easymotion'
+Bundle 'lunaru/vim-less'
+Bundle 'mbbill/undotree'
+Bundle '2072/vim-syntax-for-PHP.git'
+Bundle 'lh-vim-lib'
+Bundle 'LucHermitte/local_vimrc'
+Bundle 'derekwyatt/vim-scala'
+Bundle 'leafgarland/typescript-vim'
+Bundle 'editorconfig/editorconfig-vim'
+Bundle 'leafgarland/typescript-vim'
 
 " Perl utility functions
 perl << EOF
@@ -96,9 +114,6 @@ vi_func CursorColumn, sub {
     Cursor($line, $column=$new_column) if @_;
     return $column
 };
-EOF
-
-perl << EOF
 vi_func NextTabstop, sub {
     my $colnum = CursorColumn();
     my $ts = vi_opt 'tabstop';
@@ -112,14 +127,7 @@ vi_func PrevTabstop, sub {
     ( CharAt(Cursor()) eq "\t"
     ? $colnum - 1
     : $colnum - 1 - ($colnum - 1) % $ts )
-}
-EOF
-map <silent> <tab> :call CursorColumn(NextTabstop())<CR>
-map <silent> <S-tab> :call CursorColumn(PrevTabstop())<CR>
-map <silent> <Esc>l :call CursorColumn(NextTabstop())<CR>
-map <silent> <Esc>h :call CursorColumn(PrevTabstop())<CR>
-
-perl << EOF
+};
 vi_func RemoveLastTab, sub {
     my ($line, $column) = Cursor();
     if (CharAt($line, $column) eq "\t") {
@@ -135,32 +143,47 @@ vi_func RemoveLastTab, sub {
         TextAtLine($line, $text);
         CursorColumn($column + length($snip));
     }
-}
+};
 EOF
-imap <S-tab> <C-o>:call RemoveLastTab()<CR>
+imap <silent> <S-tab> <C-\><C-o>:call RemoveLastTab()<CR>
 
-function! BART(station)
-    let bart_url = 'http://www.hdanak.com/bart.pl?' . '\&station=' . a:station
-    return system('curl ' . bart_url . ' 2>/dev/null')
-endfunction
-map <silent> <Leader>b :echo BART('embr')<CR>
+map <silent> <tab>   :call CursorColumn(NextTabstop())<CR>
+map <silent> <S-tab> :call CursorColumn(PrevTabstop())<CR>
 
+map <Esc>h B
+map <Esc>l W
+map <Esc>k {
+map <Esc>j }
 
 nmap j gj
 nmap k gk
 
-nmap <C-h> <C-w>h
-nmap <C-l> <C-w>l
-nmap <C-j> <C-w>j
-nmap <C-k> <C-w>k
+nmap <Up>    <C-y>
+nmap <Down>  <C-e>
+nmap <Right> gt
+nmap <Left>  gT
 
-nmap <Esc>OD gT
-nmap <Esc>OC gt
-nmap <Esc>OB <C-e>
-nmap <Esc>OA <C-y>
+nmap <C-h> gT
+nmap <C-l> gt
+nmap <C-j> <C-d>
+nmap <C-k> <C-u>
 
-nmap <Esc>j 4j
-nmap <Esc>k 4k
+"nmap <Up>    <C-y>
+"nmap <Down>  <C-e>
+"nmap <Left>  gT
+"nmap <Right> gt
+
+"nmap <C-k> <C-w>k
+"nmap <C-j> <C-w>j
+"nmap <C-h> <C-w>h
+"nmap <C-l> <C-w>l
+
+
+
+map <silent> <Leader>t :echo system('date')<CR>
+
+"imap <Esc>; <C-O>/%%%<CR><C-O>c3l
+nmap <Esc>; /%%%<CR>c3l
 
 let $PAGER=''
 runtime ftplugin/man.vim
@@ -181,20 +204,26 @@ endfunction
 set foldmethod=indent
 set foldminlines=3
 set foldtext=FoldText()
-set foldlevelstart=1
+set foldlevelstart=0
 
 set formatoptions=croqln1 "a -- makes it reflow comments
-let &showbreak=repeat(' ', winwidth(0)/3) . ' ..'
+let &showbreak=repeat(' ', winwidth(0)/5) . '... '
 set linebreak
 
-nmap Q gq}<C-o>
-nmap S :w<CR>
+nmap Q      gq}<C-o>
+" terminal
+nmap S      :w<CR>
+" gui
+nmap <C-s>  :w<CR>
+nmap <F2>   :w<CR>
 
 set spell
 set hlsearch
-nnoremap <silent> <Leader><Leader> :nohlsearch<CR>
+set noignorecase
+"set smartcase
+nnoremap <silent> <Leader><Return> :nohlsearch<CR>
 
-hi SpellBad         cterm=underline ctermfg=red         ctermbg=black
+hi SpellBad         cterm=underline ctermfg=darkred     ctermbg=black
 hi SpellCap         cterm=underline ctermfg=cyan        ctermbg=black
 hi Search           cterm=bold      ctermfg=darkblue    ctermbg=grey
 hi Folded                           ctermfg=grey        ctermbg=NONE
@@ -206,18 +235,89 @@ hi ColorColumn      cterm=underline ctermfg=darkgrey    ctermbg=black
 hi LineNr           cterm=NONE      ctermfg=brown       ctermbg=black
 hi ExtraWhitespace                                      ctermbg=red
 
+hi Normal           guifg=white     guibg=black
+set tb=
+
 match ExtraWhitespace /\s\+$\| \+\ze\t/
 
 set number
-nmap <silent> <F3> :exec &number ? "set relativenumber" : "set number"<CR>
+nmap <silent> <F3> :exec &number ? "set relativenumber \| set nonumber" : "set number \| set norelativenumber"<CR>
+
+nmap <Leader>% :echo @%<CR>
 
 set textwidth=78
 set colorcolumn=+2
 
+set tabstop=4 shiftwidth=4 expandtab
+set softtabstop=4   "0 disables sts, -1 sets sts=<sw>
+
 set background=dark
-set tabstop=4 sts=4 sw=4 et
 filetype plugin indent on
 syntax on
 set nomodeline
+set cm=blowfish
+
+set completeopt=menu,preview,longest
+imap <Nul> <C-X><C-O>
+"imap <C-\> <C-N><C-P>
+imap <C-j> <C-R>=pumvisible() ? "\<lt>C-N>" : "\<lt>C-j>"<CR>
+imap <C-k> <C-R>=pumvisible() ? "\<lt>C-P>" : "\<lt>C-k>"<CR>
+set pumheight=4
+
+source $VIMRUNTIME/menu.vim
+set wildmenu
+set wcm=<Nul>
+map <F4> :emenu <Nul>
+
+if has("autocmd") && exists("+omnifunc")
+autocmd Filetype *
+	    \	if &omnifunc == "" |
+        "\       imap <buffer> <Nul> <C-X><C-N>
+	    \		setlocal omnifunc=syntaxcomplete#Complete |
+	    \	endif
+endif
 
 noremap <silent> <Leader>vs :<C-u>let @z=&so<CR>:set so=0 noscb<CR>:bo vs<CR>Ljzt:setl scb<CR><C-w>p:setl scb<CR>:let &so=@z<CR>
+set mouse=a
+set showtabline=2
+set encoding=utf-8
+
+set diffopt=filler,iwhite,vertical
+
+" netrw config
+"
+let g:netrw_browse_split=3
+
+" automatically mkdir on save
+function! s:MkNonExDir(file, buf)
+  if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
+    let dir=fnamemodify(a:file, ':h')
+    if !isdirectory(dir)
+      call mkdir(dir, 'p')
+    endif
+  endif
+endfunction
+augroup BWCCreateDir
+  autocmd!
+  autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
+augroup END
+
+command! Rediff set nodiff | set diff
+
+function! ShowFuncName()
+  let lnum = line(".")
+  let col = col(".")
+  echohl ModeMsg
+  echo getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW'))
+  echohl None
+  call search("\\%" . lnum . "l" . "\\%" . col . "c")
+endfunction
+map! <Leader>f :call ShowFuncName() <CR>
+
+let g:PHP_removeCRwhenUnix = 1
+let g:PHP_vintage_case_default_indent = 1
+
+" open APK files as ZIP
+au BufReadCmd *.apk call zip#Browse(expand("<amatch>"))
+
+"## To-do: make <C-Left> and <C-Right> move 1 word left/right

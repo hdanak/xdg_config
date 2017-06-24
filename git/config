@@ -12,17 +12,56 @@
     lineNumber = true
 [merge]
     tool = meld
+    #conflictstyle = diff3
+[push]
+    default = upstream
 [log]
     decorate = true
+[apply]
+    ignorewhitespace = change
+[gc]
+	auto = 0
+[rerere]
+    enabled = false
 [alias]
     stat = status -b --untracked-files=no
     graph = log --graph
+    abbrev = log --abbrev-commit
     partial = add -p
+    patch = add -p
     forget = reset
     info = branch -v
+    branched = checkout -b
     vimdiff = difftool --tool=vimdiff
     permission-reset = "!git diff -p | grep -E '^(diff|old mode|new mode)' \
 		     | sed -e 's/^old/NEW/;s/^new/old/;s/^NEW/new/' | git apply"
+    update = add -u
+    pullr = pull --rebase
+    blam = blame -w
+    amend = commit --amend
+    wsfix = "!git diff HEAD >P.diff && git reset --hard && git apply --whitespace=fix P.diff && rm -f P.diff"
+    wsfixi = "!git diff --cached >P.diff && git reset && git apply --whitespace=fix P.diff && rm -f P.diff"
+
+    ang = "!f() { angular_convert $* | quotemeta '|' | quoted | xargs git grep; }; f"
+    check-renames = "!git status --porcelain | grep '^\\s*[DR]' | sed 's/^\\s*[DR]\\s*//' | sed 's/ -> .*//g' | git grep-files"
+    unmerged = "!git status --porcelain | grep '^\\s*UU' | sed 's/^\\s*UU\\s*//'"
+    vigrep = "!f() { git grep $* | grep -o '^[^:]*' | sort | uniq | xargs vim -p; }; f"
+    grepb = "!f() { git grep '\\b'$1'\\b' ${@:2}; }; f"
+
     changed = diff --name-only
     cached = diff --cached
-    update = add -u
+    cachw = diff --cached --ignore-blank-lines -w --patience
+    diffw = diff --ignore-blank-lines -w --patience
+    dfw = diff -w -b --ignore-space-at-eol --ignore-blank-lines
+    shw = show -w -b --ignore-space-at-eol --ignore-blank-lines
+
+    diff-base = "!f() { b=$(git merge-base HEAD $*); git diff $b HEAD ; }; f"
+    diffw-base = "!f() { b=$(git merge-base HEAD $*); git diffw $b HEAD ; }; f"
+    show-base = "!f() { b=$(git merge-base HEAD $*); git show $b ; }; f"
+    shw-base = "!f() { b=$(git merge-base HEAD $*); git shw $b ; }; f"
+
+    review = "!arc diff --allow-untracked --less-context"
+    review-mobile = "!arc diff --allow-untracked --less-context"
+    land = "!arc land --squash --onto develop"
+[credential]
+	helper = store
