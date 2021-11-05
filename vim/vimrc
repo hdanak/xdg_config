@@ -9,13 +9,17 @@ Bundle 'Lokaltog/powerline'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'lunaru/vim-less'
 Bundle 'mbbill/undotree'
-Bundle '2072/vim-syntax-for-PHP.git'
-Bundle 'lh-vim-lib'
+Bundle 'LucHermitte/lh-vim-lib'
 Bundle 'LucHermitte/local_vimrc'
-Bundle 'derekwyatt/vim-scala'
-Bundle 'leafgarland/typescript-vim'
 Bundle 'editorconfig/editorconfig-vim'
+Bundle '2072/vim-syntax-for-PHP.git'
+Bundle 'derekwyatt/vim-scala'
+Bundle 'hashivim/vim-terraform'
 Bundle 'leafgarland/typescript-vim'
+Bundle 'peitalin/vim-jsx-typescript'
+"Bundle 'kamykn/CCSpellCheck.vim'
+"Bundle 'sheerun/vim-polyglot'
+
 
 " Perl utility functions
 perl << EOF
@@ -321,3 +325,89 @@ let g:PHP_vintage_case_default_indent = 1
 au BufReadCmd *.apk call zip#Browse(expand("<amatch>"))
 
 "## To-do: make <C-Left> and <C-Right> move 1 word left/right
+
+" search for visually selected text
+vnoremap // y/<C-R>"<CR>
+
+au BufNewFile,BufRead *.ejs set filetype=html
+
+command! -nargs=* -bar -bang -count=0 -complete=dir E Explore
+
+function! Tabline()
+  let all_strings = []
+  let current_tab = tabpagenr()
+  for i in range(tabpagenr('$'))
+    let tab = i + 1
+    let winnr = tabpagewinnr(tab)
+    let buflist = tabpagebuflist(tab)
+    let bufnr = buflist[winnr - 1]
+    let bufname = bufname(bufnr)
+    let bufmodified = getbufvar(bufnr, "&mod")
+
+    let s = ''
+    let s .= ' ' . tab .':'
+    if bufmodified
+      let s .= '+ '
+    endif
+    "let s .= (bufname != '' ? fnamemodify(bufname, (tab == current_tab ? ':~:.' : ':t')). ' ' : '[No Name] ')
+    let s .= (bufname != '' ? fnamemodify(bufname, ':t'). ' ' : '[No Name] ')
+
+    let all_strings += [s]
+  endfor
+
+  let start_i = 0
+  let end_i = len(all_strings) - 1
+  let full_string = join(all_strings, '')
+  if strlen(full_string) > &columns
+    let start_i = current_tab - 1
+    let end_i = current_tab - 1
+    let full_string = all_strings[start_i]
+    while start_i > 0 && strlen(full_string) + strlen(all_strings[start_i - 1]) < (&columns * 3 / 4)
+      let start_i -= 1
+      let full_string = all_strings[start_i] . full_string
+    endwhile
+    while end_i < len(all_strings) - 1 && strlen(full_string) + strlen(all_strings[end_i + 1]) < &columns
+      let end_i += 1
+      let full_string .= all_strings[end_i]
+    endwhile
+    while start_i > 0 && strlen(full_string) + strlen(all_strings[start_i - 1]) < &columns
+      let start_i -= 1
+      let full_string = all_strings[start_i] . full_string
+    endwhile
+  endif
+
+  let out = ''
+  for i in range(start_i, end_i)
+    let tab = i + 1
+    " set the tab page number (for mouse clicks)
+    let out .= '%' . tab . 'T'
+	  " select the highlighting
+    let out .= (tab == current_tab ? '%#TabLineSel#' : '%#TabLine#')
+
+    if start_i > 0 && i == start_i
+      let out .= '<' . all_strings[i][1:]
+    else
+      let out .= all_strings[i]
+    endif
+  endfor
+
+  let remainder = &columns - strlen(full_string)
+  if end_i < len(all_strings) - 1 && remainder > 0
+    let i = end_i + 1
+    let tab = i + 1
+    " set the tab page number (for mouse clicks)
+    let out .= '%' . tab . 'T'
+	  " select the highlighting
+    let out .= (tab == current_tab ? '%#TabLineSel#' : '%#TabLine#')
+    let out .= all_strings[i][:remainder-1]
+  endif
+
+  if end_i < len(all_strings) - 1
+    "let out .= '>'
+  endif
+
+  let out .= '%#TabLineFill#'
+  return out
+
+endfunction
+set tabline=%!Tabline()
